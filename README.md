@@ -1,119 +1,128 @@
-Speech Emotion Recognition Using CNN–BiGRU
-Multi-Corpus Training, FastAPI Deployment, and Flutter Mobile Demo
+# Speech Emotion Recognition Using CNN–BiGRU  
+Multi-Corpus Training, FastAPI Deployment, and Flutter Mobile Demo  
+Leiden University – Advanced Computing and Systems Seminar
 
-This repository contains the full workflow for a Speech Emotion Recognition (SER) system developed as part of the Leiden University – Advanced Computing & Systems seminar.
-It includes:
+This repository contains the complete workflow for a Speech Emotion Recognition (SER) system developed as part of the ACS seminar at Leiden University.  
+It integrates three acted emotional-speech corpora, applies a unified preprocessing and feature extraction pipeline, trains a CNN–BiGRU model, evaluates it, and deploys it for real-time inference using FastAPI and a Flutter mobile application.
 
-Three-corpus data integration: RAVDESS, CREMA-D, IEMOCAP
+---
 
-Unified preprocessing: label harmonisation, log-Mel spectrograms
-
-Deep model: CNN + BiGRU hybrid architecture
-
-Training notebooks with full pipeline
-
-FastAPI inference server that reproduces preprocessing exactly
-
-Flutter mobile application for real-time SER inference
-
-The goal of this project is both research-focused evaluation and practical deployment, enabling a live demo of SER running on mobile.
-
-Project Structure
+## Project Structure
 
 speech_emotion_detector_project/
 │
-├── notebooks/                      # Step-by-step pipeline notebooks
-│   ├── 01_dataset_access.ipynb
-│   ├── 02_metadata_labels.ipynb
-│   ├── 03_feature_extraction.ipynb
-│   ├── 04_training.ipynb
-│   ├── 05_evaluation.ipynb
-│   └── 06_deployment_preparation.ipynb
+├── notebooks/
+│ ├── 01_data_overview.ipynb
+│ ├── 02_metadata_labels.ipynb
+│ ├── 03_split_data.ipynb
+│ ├── 04_feature_extraction.ipynb
+│ ├── 05_train_cnn_gru.ipynb
+│ └── 06_evaluation_and_export.ipynb
 │
-├── ser_api/                        # FastAPI inference server
-│   ├── main.py
-│   ├── model/
-│   │     └── best_cnn_gru_ser.keras
-│   └── utils/
-│         ├── audio_utils.py
-│         └── features.py
+├── ser_api/
+│ ├── main.py
+│ ├── model/
+│ │ └── best_cnn_gru_ser.keras
+│ └── utils/
+│ ├── audio_utils.py
+│ └── features.py
 │
-├── flutter_app/ (optional)         # Flutter client if included
+├── flutter_app/
 │
-├── reports/                        # LaTeX final report, Overleaf-ready
-│   ├── SER_Report.tex
-│   ├── images/
-│   │     ├── confusion_matrix.png
-│   │     ├── training_validation_accuracy.png
-│   │     ├── ravdess_waveform.png
-│   │     ├── cremad_waveform.png
-│   │     └── iemocap_waveform.png
-│   └── pdf/
+├── reports/
+│ ├── SER_Report.tex
+│ ├── images/
+│ │ ├── confusion_matrix.png
+│ │ ├── training_validation_accuracy.png
+│ │ ├── ravdess_waveform.png
+│ │ ├── cremad_waveform.png
+│ │ └── iemocap_waveform.png
+│ └── pdf/
 │
-├── requirements.txt                # Python dependencies (generated manually)
-└── README.md                       # This file
+├── requirements.txt
+└── README.md
 
 
-1. Summary of the Research Workflow
-✔ Dataset Access
+---
 
-All .wav files from RAVDESS, CREMA-D, and IEMOCAP were loaded, inspected, normalised, counted, and verified.
+## 1. Research Workflow Summary
 
-✔ Label Harmonisation
+### Dataset Access
 
-Mapped each corpus to four unified classes:
+All WAV files from RAVDESS, CREMA-D, and IEMOCAP were recursively located, decoded, and analysed using Librosa.  
+Sampling rate, duration, and waveform visualisations confirmed that the datasets were suitable for processing.
+
+### Label Harmonisation
+
+All corpora were mapped to four unified emotion labels:
+
 angry, happy, neutral, sad
-All incompatible emotion categories removed.
 
-✔ Stratified Splitting
+Labels inconsistent with this scheme (fear, disgust, surprise, frustration, etc.) were removed.
 
-Unified dataset size: 12,159 utterances
-Split into a balanced 70/15/15 train/validation/test partition.
+After filtering, 12,159 utterances remained.
 
-✔ Feature Extraction
+### Stratified Splitting
 
-16 kHz mono
+A stratified 70/15/15 split was applied to preserve class proportions:
 
-25ms window / 10ms hop
+Train: 8511  
+Validation: 1824  
+Test: 1824  
 
-128 Mel bands
+### Acoustic Feature Extraction
 
-Log-Mel spectrograms
+All audio was converted to a uniform representation:
 
-3 second fixed length (128×300)
+- 16 kHz mono  
+- 25 ms window, 10 ms hop  
+- 128 Mel bands  
+- log-scaled Mel spectrograms  
+- fixed length 3 seconds (128 × 300 tensor)
 
-✔ Model
+This representation matches typical setups in SER literature.
 
-CNN–BiGRU architecture:
+### Model Architecture (CNN–BiGRU)
 
-3 convolutional blocks
+The network consists of:
 
-Bidirectional GRU (128 units)
+- Three convolutional blocks (3 × 3 kernels, 32→64→128 filters)
+- Batch Normalization, ReLU, MaxPooling
+- Temporal reshaping
+- Bidirectional GRU (128 units)
+- Dense + Dropout
+- Softmax output layer (4 classes)
 
-Dense layers + dropout
+The model was trained using Adam (1e–3), batch size 32, and early stopping.
 
-Softmax classification (4 classes)
+### Evaluation Results
 
-✔ Results
+Test accuracy: 67.4 percent  
+Macro-F1: 0.68  
 
-67.4% test accuracy
+Highest performance was observed for angry and sad; happy was the most confusable class, consistent with findings in prior SER research.
 
-Best F1 for angry/sad; lowest for happy
+A confusion matrix and per-class metrics are included in the final report.
 
-Full confusion matrix included in report
+---
+
+## 2. Deployment Architecture
+
+### FastAPI Inference Server
+
+The server performs:
+
+1. Resampling to 16 kHz  
+2. Log-Mel feature extraction identical to training  
+3. Model inference  
+4. Returning predicted class and full probability distribution
+
+Endpoint: POST /predict
 
 
+Response structure:
 
-2. Deployment Architecture
-✔ FastAPI Server (ser_api/)
-
-Loads the trained CNN–BiGRU model
-
-Reproduces preprocessing exactly (resampling, padding, log-Mel)
-
-Exposes:POST /predict
-
-Response:
+```json
 {
   "emotion": "neutral",
   "probability": 0.74,
@@ -125,47 +134,60 @@ Response:
   }
 }
 
-3. Flutter Mobile Client
+The label order matches the training configuration.
 
-The mobile client performs:
+Flutter Mobile Client
 
-Records 3 seconds of speech
+The mobile application:
 
-Plays back the recorded audio
+Records a 3-second speech clip
 
-Uploads WAV (16kHz mono) to FastAPI
+Plays the recording back
+
+Sends a 16 kHz mono WAV file to the FastAPI server
 
 Displays:
 
 predicted emotion
 
-confidence
+confidence score
 
 probability distribution
 
 inference time
 
-entropy and margin (uncertainty indicators)
+entropy and margin (simple interpretability indicators)
 
-This allows real-time SER demos on a phone.
+This enables an interactive real-time SER demo.
 
+3. Running the FastAPI Inference Server
+Activate the environment:
 
-4. Running the Inference Server
-Step 1 — Activate the environment
 conda activate ser_env
 
-Step 2 — Navigate to server folder
+
+Navigate to the server directory:
+
 cd ser_api
 
 
-Step 3 — Launch server
+Start the server:
+
 python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 
-Expected output:
-Uvicorn running on http://0.0.0.0:8000
+Server will be available at:
 
-5. requirements.txt
+http://localhost:8000
+
+
+Interactive API docs:
+
+http://localhost:8000/docs
+
+4. Requirements
+
+The required packages (see requirements.txt):
 
 numpy
 librosa
@@ -175,3 +197,33 @@ keras==3.0.0
 fastapi
 uvicorn
 soundfile
+pydantic
+python-multipart
+
+5. Acknowledgements
+
+This work was completed as part of the Advanced Computing and Systems seminar at Leiden University.
+
+Datasets:
+
+RAVDESS
+
+CREMA-D
+
+IEMOCAP
+
+Model design informed by:
+
+Satt et al. (Interspeech 2017)
+
+Neumann and Vu (Interspeech 2017)
+
+Latif et al. (IEEE TAC 2019)
+
+Atmaja and Akagi (Sensors 2020)
+
+
+
+
+
+
