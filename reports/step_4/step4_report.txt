@@ -1,0 +1,7 @@
+Acoustic feature extraction
+
+All audio recordings from RAVDESS, CREMA-D and IEMOCAP were converted to a unified acoustic representation prior to modelling. Each waveform was loaded in mono, amplitude-normalized and resampled to a target sampling rate of 16 kHz.
+
+For each utterance we computed log-Mel spectrograms, which are widely used in state-of-the-art speech emotion recognition systems and have been shown to outperform traditional MFCCs for deep architectures, due to their higher time–frequency resolution and better preservation of emotional spectral cues [e.g. Satt et al., Interspeech 2017; Neumann & Vu, Interspeech 2017]. A short-time Fourier transform was applied using a 25 ms window and 10 ms hop size, followed by a 128-band Mel filterbank covering the range from 0 Hz to 8 kHz. The resulting Mel-spectrograms were converted to logarithmic scale using the standard power_to_db mapping.
+
+To obtain fixed-size inputs suitable for mini-batch training, all log-Mel spectrograms were either zero-padded or truncated to a duration of 3 seconds, corresponding to approximately 128 × 300 time–frequency coefficients per utterance. These tensors form the input to the convolutional–recurrent neural network described in Section Y, and are referenced through a separate metadata file that stores, for each utterance, the path to its feature file, its emotion label and its train/validation/test split.

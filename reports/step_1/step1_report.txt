@@ -1,0 +1,16 @@
+3.x Dataset access and implementation environment
+
+All experiments were implemented in Python using a conda environment with the Librosa, TensorFlow/Keras and scikit-learn libraries. Audio was processed in Jupyter notebooks on a Windows 10 machine.
+
+We employed three widely used acted speech-emotion corpora: RAVDESS, CREMA-D, and IEMOCAP. For each corpus we first verified that the directory structure and audio files could be accessed correctly. Using Librosa, we recursively collected all .wav files, counted the total number of utterances, and inspected random examples from every dataset by plotting their waveforms and reporting the sampling rate and duration.
+
+The resulting corpus statistics are summarised in Table 1. RAVDESS contains 2880 speech utterances sampled at 48 kHz, with a typical duration of approximately 3.2 s. CREMA-D contains 7442 utterances at 16 kHz, with a mean duration around 2.5 s. IEMOCAP provides 10 190 recorded utterances at 16 kHz, usually around 3.3 s long. Visual inspection of randomly selected waveforms from all three corpora confirmed that the recordings were correctly decoded and contained clear speech segments suitable for feature extraction and modelling.
+
+Table 1 – Basic corpus statistics after loading.
+
+Corpus	# utterances	Sampling rate	Typical duration
+RAVDESS	2880	48 000 Hz	≈ 3.2 s
+CREMA-D	7442	16 000 Hz	≈ 2.5 s
+IEMOCAP	10 190	16 000 Hz	≈ 3.3 s
+
+This initial step ensured that all audio material could be accessed reliably and established a solid basis for the unified preprocessing and feature-extraction pipeline described in the following sections.

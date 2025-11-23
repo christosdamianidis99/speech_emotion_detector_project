@@ -1,0 +1,21 @@
+Before Running the cells(02_metadata_labels.ipynb):
+Emotion label harmonisation.
+The three corpora adopt different annotation schemes and contain a larger set of categories than we target in our application. For the mobile demo we focused on four core emotions that are shared across datasets and intuitive for users: angry, happy, sad and neutral.
+
+In RAVDESS, emotion is encoded as the third field in the filename pattern MM-VC-EE-II-SS-RR-AA.wav. We mapped codes 01 (neutral) and 02 (calm) to the unified label neutral, 03 to happy, 04 to sad and 05 to angry, discarding utterances with codes 06–08 (fear, disgust, surprise).
+For CREMA-D, filenames follow the format ID_Sentence_Emotion_Intensity.wav. We mapped NEU, HAP, SAD and ANG to neutral, happy, sad and angry respectively, while excluding samples labelled as fear (FEA) or disgust (DIS).
+
+For IEMOCAP, ground-truth labels are stored in the EmoEvaluation annotation files. Following the official specification, we extracted the emotion code from lines corresponding to individual utterances and combined hap (happy) and exc (excited) into a single happy category, while neu, ang and sad mapped directly to neutral, angry and sad [torchaudio IEMOCAP loader]. Utterances with other labels (e.g. frustration) were discarded.
+
+The final metadata table stores, for each utterance, the file path, originating dataset, speaker identifier, original label and unified label, enabling joint training and evaluation across all three corpora.
+
+After running the cells:
+
+
+After filtering and unifying the emotion labels across corpora, the resulting dataset contained 12,159 utterances.
+RAVDESS contributed 1,728 utterances (neutral 576, happy 384, sad 384, angry 384).
+CREMA-D contributed 4,900 utterances (neutral 1087, happy 1271, sad 1271, angry 1271).
+IEMOCAP contributed 5,531 utterances (neutral 1708, happy 1636, sad 1084, angry 1103).
+This produced a balanced four-class emotion distribution suitable for supervised learning: neutral (3371), happy (3291), angry (2758) and sad (2739).
+
+Emotions such as fear, disgust, surprise, and frustration were excluded in order to create a consistent four-class scheme shared by all corpora. This ensured label compatibility across datasets and simplified deployment in the mobile application.

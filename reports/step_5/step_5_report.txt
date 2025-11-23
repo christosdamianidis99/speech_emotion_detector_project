@@ -1,0 +1,29 @@
+Model architecture and training
+4.y Convolutional–recurrent model for SER
+
+We adopted a convolutional–recurrent neural network architecture, which reflects the current state of the art in speech emotion recognition using log-Mel spectrograms as input features. The network takes as input a tensor of size 128 × 300 × 1, corresponding to a 3-second log-Mel spectrogram with 128 Mel bands and approximately 300 time frames.
+
+The feature extractor consists of three 2D convolutional blocks. Each block applies a 3×3 convolution (with 32, 64 and 128 filters respectively), followed by batch normalization, ReLU activation and 2×2 max pooling. These layers progressively capture local time–frequency patterns related to formant structure, spectral slope and pitch dynamics, while reducing the spatial resolution.
+
+The resulting feature maps are then rearranged for temporal modelling. Specifically, the dimensions are permuted so that the time axis becomes the leading sequence dimension, and the remaining frequency–channel dimensions are flattened into a single feature vector per frame. This sequence is passed to a bidirectional GRU layer with 128 units, which models temporal dependencies in both forward and backward directions, capturing the evolution of emotional cues over time. The GRU output is followed by a fully connected layer with 64 units and ReLU activation, and a final softmax output layer with four units corresponding to the target emotion classes (angry, happy, neutral, sad). Dropout (0.5 after the GRU and 0.3 after the dense layer) is used for regularisation.
+
+The model was implemented in Keras/TensorFlow and trained using the Adam optimizer with an initial learning rate of 10⁻³ and a batch size of 32. The loss function was sparse categorical cross-entropy. We used early stopping and learning-rate reduction on plateau, monitoring validation accuracy, in order to avoid overfitting. The model with the highest validation accuracy was saved and later evaluated on the held-out test set. Figure X shows the training and validation accuracy curves over 40 epochs.
+
+
+Experimental results
+
+The best-performing CNN–BiGRU model achieved a test accuracy of 67.4% on the 4-class, multi-corpus evaluation set (1,824 utterances). Table Y summarises the per-class precision, recall and F1-scores, and Figure Y shows the corresponding confusion matrix.
+
+Emotion	Precision	Recall	F1-score	Support
+angry	0.82	0.64	0.72	414
+happy	0.57	0.65	0.61	494
+neutral	0.63	0.72	0.67	505
+sad	0.77	0.68	0.72	411
+overall	—	—	0.68 (macro)	1824
+
+The model performs particularly well on angry and sad speech, with F1-scores of approximately 0.72 in both cases. The neutral class reaches an F1-score of 0.67, suggesting that the model can reliably distinguish neutral from clearly emotional speech. The most challenging class is happy (F1 ≈ 0.61), which is consistent with earlier SER studies reporting substantial confusion between happy, neutral and other positive-valence states.
+
+The confusion matrix (Figure Y) reveals several patterns. Angry utterances are sometimes misclassified as happy, reflecting overlaps in high arousal and energy between these emotions. Neutral speech is occasionally predicted as happy or sad, which is plausible when speakers use slightly positive or negative prosody within otherwise neutral content. Sad utterances are rarely confused with angry, indicating that the model successfully exploits differences in spectral tilt and temporal dynamics between low-arousal and high-arousal negative emotions.
+
+Overall, a test accuracy of roughly 67–68% on a four-class, multi-corpus task (RAVDESS, CREMA-D and IEMOCAP combined) indicates that the proposed log-Mel + CNN–BiGRU pipeline is competitive with results reported in the literature for similar acted SER settings, while being compact enough to deploy in a real-time mobile application.
+

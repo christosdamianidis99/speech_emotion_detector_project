@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints/
+
+# Environments
+.env
+.venv/
+venv/
+ser_env/
+
+# Datasets (do NOT upload)
+data/
+datasets/
+raw_data/
+RAVDESS*/
+CREMA-D*/
+IEMOCAP*/
+
+# Model checkpoints (keep only final model)
+checkpoints/
+logs/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Latex build artifacts
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.toc
+
+# Flutter (if present)
+build/
+.dart_tool/
+flutter_app/build/

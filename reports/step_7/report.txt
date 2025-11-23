@@ -1,0 +1,135 @@
+To demonstrate the practical usability of our SER system, we developed a simple Flutter mobile client. The app records short speech segments using the device microphone, encodes them as 16 kHz mono WAV files and sends them via HTTP as multipart/form-data to a Python FastAPI server running the trained CNN–BiGRU model. The server returns a JSON response with the predicted emotion and the posterior probabilities for each class. The client displays the dominant emotion label and the corresponding confidence, providing an intuitive real-time demo of the underlying speech emotion recognition pipeline.
+
+Deployment and Integration Report
+6. Model Deployment and Mobile Application Integration
+
+The final phase of the project involved deploying the trained CNN-BiGRU speech emotion recognition model and integrating it into a mobile application that performs real-time inference. This stage ensured that the system is functional beyond the experimental notebook and can be demonstrated live during the project presentation.
+
+6.1 Server Deployment Architecture
+
+To operationalize the trained network, we developed a lightweight inference server using FastAPI. This server exposes a single /predict endpoint which accepts an audio file (WAV format), performs preprocessing, and returns the predicted emotion along with the full class-probability distribution.
+
+Server Components
+
+FastAPI backend providing REST interface
+
+TensorFlow/Keras model loader using the final trained model (best_cnn_gru_ser.keras)
+
+Audio preprocessing utilities implementing:
+
+16 kHz resampling
+
+mono conversion
+
+fixed-length trimming (3 seconds)
+
+extraction of 128×300 log-mel spectrogram
+
+Softmax output decomposition, returning:
+
+Predicted class
+
+Confidence score
+
+Probability distribution for all four classes
+
+The label order (["angry", "happy", "neutral", "sad"]) was hard-coded to match the order used during training, ensuring consistent interpretation of predictions.
+
+A CORS configuration was added to permit communication with the mobile application during local development.
+
+6.2 API Endpoint Specification
+
+POST /predict
+
+Input:
+
+Audio file (.wav, 16 kHz, mono)
+
+Output:
+
+{
+  "emotion": "happy",
+  "probability": 0.72,
+  "all_probs": {
+    "angry": 0.04,
+    "happy": 0.72,
+    "neutral": 0.18,
+    "sad": 0.06
+  }
+}
+
+
+This structured output allows the client to evaluate not only the predicted class but also the model’s uncertainty, which is useful for scientific reporting.
+
+6.3 Mobile Application Integration (Flutter)
+
+A dedicated Flutter interface was built to collect audio, send it to the server, and display prediction results. The most important design objective was to keep the interface minimalistic, interpretable, and educational, in line with the research nature of the project.
+
+App Workflow
+
+3-second audio recording (fixed to align with model training).
+
+Optional playback of the recorded audio for user verification.
+
+Automatic upload of the recording to the FastAPI server.
+
+Real-time inference returned by the model.
+
+Presentation of the output in a student-oriented, research-focused format:
+
+Predicted emotion
+
+Confidence score
+
+Distribution across the four emotion classes
+
+Response time
+
+Two light, scientifically relevant metrics:
+
+Entropy (uncertainty)
+
+Margin between top-1 and top-2 classes
+
+Both metrics are commonly reported in speech emotion recognition literature to justify model certainty (e.g., Atmaja & Akagi, 2020; Neumann & Vu, 2019).
+
+6.4 Example Output and Interpretation
+
+During testing with natural speech, the mobile application produced outputs consistent with the behavior observed during notebook experiments. For example, one recording returned:
+
+Predicted emotion: neutral
+
+Confidence: 0.67
+
+Probability distribution:
+
+angry: 0.14
+
+happy: 0.09
+
+neutral: 0.67
+
+sad: 0.10
+
+Entropy: 1.17 bits (moderate uncertainty)
+
+Margin: 0.52 (clear separation between top-1 and top-2)
+
+Inference time: ~450–700 ms on CPU
+
+This aligns with the model’s overall test accuracy of 67.38%, and the class-specific behavior observed in the confusion matrix (higher reliability in neutral, angry, and sad; lower in happy).
+
+6.5 Deployment Outcome
+
+This stage successfully transformed the model from a research prototype into a functional application capable of receiving user speech and returning real-time emotion predictions. The integration demonstrates:
+
+Full pipeline coherence
+(data → preprocessing → feature extraction → CNN-BiGRU → inference API → mobile UI)
+
+Real-time capability, with consistent latency under 1 second
+
+Interpretability, through probability visualization and basic uncertainty metrics
+
+Robust demonstration potential, allowing evaluators to interactively test the system live
+
+This completes the final deliverable for the project.

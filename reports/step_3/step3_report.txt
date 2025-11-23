@@ -1,0 +1,26 @@
+Train/validation/test splitting was performed in a stratified manner to maintain the same proportion of emotion classes in each subset. Since the datasets are not perfectly balanced, stratification reduces sampling bias and ensures that all classes are represented during parameter tuning (validation) and final evaluation (test).
+
+Train/Validation/Test Splitting
+
+To ensure reproducible evaluation and balanced learning, the unified dataset (12,159 utterances) was divided into training, validation and test subsets. Because the merged corpus is not perfectly balanced across the four target emotions, a stratified sampling strategy was applied. This guarantees that the proportional distribution of emotions is preserved in each subset, preventing under-representation of specific classes during parameter tuning and final testing.
+
+We used a 70/15/15 split ratio, consistent with common practice in speech-emotion recognition. First, the data were separated into a training set (70 percent) and a temporary set (30 percent). The temporary set was then evenly divided into validation (15 percent) and test (15 percent), again using stratification based on the unified emotion labels.
+
+The resulting distribution is shown in Table X. All emotions appear with comparable proportions in each subset, demonstrating that the stratification procedure was successful. These splits were fixed and used consistently throughout feature extraction, model training, hyperparameter tuning and evaluation.
+
+Table X – Emotion distribution across splits
+Emotion	Train	Validation	Test
+angry	1930	414	414
+happy	2304	493	494
+neutral	2360	506	505
+sad	1917	411	411
+
+Total samples:
+
+Train: 8511
+
+Validation: 1824
+
+Test: 1824
+
+This stratified split forms the foundation for the subsequent feature-extraction and modelling pipeline.
