@@ -17,7 +17,8 @@ This project aims to recognize human emotions (happy, sad, angry, neutral) from 
 3.  Create a Conda environment: `conda create --name ser_final python=3.9 -y`
 4.  Activate the environment: `conda activate ser_final`
 5.  Install dependencies: `pip install -r requirements.txt`
-6.  Run the server: `python server.py`
+6.  Run the server: python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
 
 ## Flutter Application (`emotion_detector_app/`)
 
