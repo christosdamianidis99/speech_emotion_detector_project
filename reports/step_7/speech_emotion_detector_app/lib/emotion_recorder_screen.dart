@@ -10,8 +10,6 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 import 'package:record/record.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -113,7 +111,7 @@ class _EmotionRecorderScreenState extends State<EmotionRecorderScreen> {
       builder: (context) {
         return AlertDialog(
           title: const Text('Export History'),
-          content: const Text('Export the recording history as a CSV or PDF file.'),
+          content: const Text('Export the recording history as a CSV or JSON file.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -125,9 +123,9 @@ class _EmotionRecorderScreenState extends State<EmotionRecorderScreen> {
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-                _exportToPdf();
+                _exportToJson();
               },
-              child: const Text('PDF'),
+              child: const Text('JSON'),
             ),
           ],
         );
@@ -163,7 +161,7 @@ class _EmotionRecorderScreenState extends State<EmotionRecorderScreen> {
     OpenFile.open(path);
   }
 
-  Future<void> _exportToPdf() async {
+  Future<void> _exportToJson() async {
     if (_dbRecords.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No data to export.')),
@@ -171,29 +169,24 @@ class _EmotionRecorderScreenState extends State<EmotionRecorderScreen> {
       return;
     }
 
-    final pdf = pw.Document();
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) {
-          return pw.Table.fromTextArray(
-            headers: ['Timestamp', 'Predicted', 'Confidence', 'Actual'],
-            data: _dbRecords
-                .map((e) => [
-              DateFormat('MM/dd/yy HH:mm').format(e.timestamp),
-              e.predictedEmotion,
-              (e.confidence * 100).toStringAsFixed(1) + '%',
-              e.userActualEmotion,
-            ])
-                .toList(),
-          );
-        },
-      ),
-    );
+    // Convert records to a JSON-friendly structure
+    final List<Map<String, dynamic>> jsonList = _dbRecords.map((e) {
+      return {
+        'timestamp': DateFormat('MM/dd/yy HH:mm').format(e.timestamp),
+        'predictedEmotion': e.predictedEmotion,
+        'confidence': e.confidence, // keep as number, not %
+        'actualEmotion': e.userActualEmotion,
+      };
+    }).toList();
 
+    final String jsonString = jsonEncode(jsonList);
+
+    // Save it to a temporary directory
     final String dir = (await getTemporaryDirectory()).path;
-    final String path = '$dir/emotion_history.pdf';
+    final String path = '$dir/emotion_history.json';
     final File file = File(path);
-    await file.writeAsBytes(await pdf.save());
+
+    await file.writeAsString(jsonString);
 
     OpenFile.open(path);
   }
