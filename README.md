@@ -4,7 +4,7 @@ This project aims to recognize human emotions (happy, sad, angry, neutral) from 
 
 ## Project Structure
 
-* `EmotionRecognition_Final.ipynb`: Jupyter Notebook containing the data processing, model training, evaluation, and export steps.
+* `notebooks`: Jupyter Notebooks containing the data processing, model training, evaluation, and export steps.
 * `server.py`: Python Flask server script to load the trained Keras model and provide predictions via an API endpoint.
 * `best_cnn_gru_ser.keras`: The final, trained Keras model file used by the server.
 * `requirements.txt`: (We will create this next) List of Python dependencies.
