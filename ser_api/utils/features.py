@@ -1,4 +1,3 @@
-# ser_api/utils/features.py
 import numpy as np
 import librosa
 from .audio_utils import SR, N_MELS, HOP_LENGTH, WIN_LENGTH, MAX_FRAMES
@@ -16,14 +15,12 @@ def audio_to_logmel_fixed(y: np.ndarray) -> np.ndarray:
     )
     logmel = librosa.power_to_db(mel, ref=np.max)
 
-    # pad / truncate to MAX_FRAMES
     if logmel.shape[1] < MAX_FRAMES:
         pad = MAX_FRAMES - logmel.shape[1]
         logmel = np.pad(logmel, ((0,0),(0,pad)), mode="constant")
     else:
         logmel = logmel[:, :MAX_FRAMES]
 
-    # add channel dimension
     logmel = logmel[..., np.newaxis].astype("float32")
     return logmel
 
