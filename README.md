@@ -27,7 +27,7 @@ A mobile application built with Flutter that records audio, sends it to the Pyth
 ### Setup (Flutter App - Local Development)
 
 1.  Ensure you have the Flutter SDK installed.
-2.  Navigate to the app directory: `cd step_7`
+2.  Navigate to the app directory: `cd reports/step_7`
 3.  Install dependencies: `flutter pub get`
 4.  **Important:** Ensure the Python server (`server.py`) is running locally.
 5.  Connect an Android device via USB with USB Debugging enabled.
