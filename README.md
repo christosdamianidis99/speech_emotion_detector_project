@@ -27,10 +27,10 @@ A mobile application built with Flutter that records audio, sends it to the Pyth
 ### Setup (Flutter App - Local Development)
 
 1.  Ensure you have the Flutter SDK installed.
-2.  Navigate to the app directory: `cd emotion_detector_app`
+2.  Navigate to the app directory: `cd step_7`
 3.  Install dependencies: `flutter pub get`
 4.  **Important:** Ensure the Python server (`server.py`) is running locally.
 5.  Connect an Android device via USB with USB Debugging enabled.
 6.  Set up ADB port forwarding: `adb reverse tcp:5000 tcp:5000`
-7.  Ensure the `serverUrl` constant in `lib/main.dart` is set to `http://127.0.0.1:5000/predict`.
+7.  Ensure the `serverUrl` constant in `lib/main.dart` is set to `http://0.0.0.0:5000/predict`.
 8.  Run the app: `flutter run`
