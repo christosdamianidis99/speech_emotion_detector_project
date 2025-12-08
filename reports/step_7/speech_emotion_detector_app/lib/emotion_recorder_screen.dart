@@ -14,7 +14,7 @@ import 'package:record/record.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EmotionRecorderScreen extends StatefulWidget {
-  const EmotionRecorderScreen({Key? key}) : super(key: key);
+  const EmotionRecorderScreen({super.key});
 
   @override
   State<EmotionRecorderScreen> createState() => _EmotionRecorderScreenState();
@@ -24,7 +24,6 @@ class _EmotionRecorderScreenState extends State<EmotionRecorderScreen> {
   final AudioRecorder _recorder = AudioRecorder();
   final AudioPlayer _player = AudioPlayer();
 
-  // State variables
   bool _isRecording = false;
   bool _isLoading = false;
   bool _isPlayingBack = false;
@@ -33,13 +32,11 @@ class _EmotionRecorderScreenState extends State<EmotionRecorderScreen> {
   List<double>? _waveformData;
   Uint8List? _melImageBytes;
 
-  // Model outputs
   String? _predictedEmotion;
   double? _predictedProb;
   List<MapEntry<String, double>>? _sortedProbs;
   Duration? _inferenceTime;
 
-  // Scientific metrics
   double? _entropyBits;
   double? _normalizedEntropy;
   double? _marginTop1Top2;
@@ -47,7 +44,6 @@ class _EmotionRecorderScreenState extends State<EmotionRecorderScreen> {
   String? _statusText;
   String? _errorMessage;
 
-  // Database (List of records)
   List<EmotionRecord> _dbRecords = [];
 
   static const Duration _recordDuration = Duration(seconds: 3);
@@ -66,7 +62,6 @@ class _EmotionRecorderScreenState extends State<EmotionRecorderScreen> {
     super.dispose();
   }
 
-  // --- Database Logic ---
   Future<void> _loadDatabase() async {
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString('emotion_db');
@@ -97,14 +92,11 @@ class _EmotionRecorderScreenState extends State<EmotionRecorderScreen> {
       userActualEmotion: userActualEmotion,
     );
     setState(() {
-      // Add to beginning of list
       _dbRecords.insert(0, newRecord);
     });
     _saveDatabase();
   }
-  // ----------------------
 
-  // --- Export Logic ---
   Future<void> _showExportDialog() async {
     showDialog(
       context: context,
@@ -169,19 +161,17 @@ class _EmotionRecorderScreenState extends State<EmotionRecorderScreen> {
       return;
     }
 
-    // Convert records to a JSON-friendly structure
     final List<Map<String, dynamic>> jsonList = _dbRecords.map((e) {
       return {
         'timestamp': DateFormat('MM/dd/yy HH:mm').format(e.timestamp),
         'predictedEmotion': e.predictedEmotion,
-        'confidence': e.confidence, // keep as number, not %
+        'confidence': e.confidence,
         'actualEmotion': e.userActualEmotion,
       };
     }).toList();
 
     final String jsonString = jsonEncode(jsonList);
 
-    // Save it to a temporary directory
     final String dir = (await getTemporaryDirectory()).path;
     final String path = '$dir/emotion_history.json';
     final File file = File(path);
@@ -190,7 +180,6 @@ class _EmotionRecorderScreenState extends State<EmotionRecorderScreen> {
 
     OpenFile.open(path);
   }
-  // ----------------------
 
   Future<String> _getRecordingPath() async {
     final dir = await getTemporaryDirectory();
@@ -358,7 +347,6 @@ class _EmotionRecorderScreenState extends State<EmotionRecorderScreen> {
             .toList()
           ..sort((a, b) => b.value.compareTo(a.value));
 
-        // Metrics
         final entropy = _computeEntropyBits(entries);
         final maxEntropy = _maxEntropyBits(entries.length);
         final normalizedEntropy = maxEntropy > 0 ? (entropy / maxEntropy).clamp(0.0, 1.0) : 0.0;
@@ -376,7 +364,6 @@ class _EmotionRecorderScreenState extends State<EmotionRecorderScreen> {
           _statusText = null;
         });
 
-        // Prompt user for their actual emotion
         _showActualEmotionDialog(emotion, prob);
 
       } else {
@@ -459,7 +446,6 @@ class _EmotionRecorderScreenState extends State<EmotionRecorderScreen> {
     );
   }
 
-  // --- UI Build Methods ---
 
   @override
   Widget build(BuildContext context) {
@@ -482,7 +468,6 @@ class _EmotionRecorderScreenState extends State<EmotionRecorderScreen> {
         children: [
           Column(
             children: [
-              // TOP SECTION: Mic, Waveform
               Container(
                 color: Colors.white,
                 padding: const EdgeInsets.only(bottom: 24),
@@ -515,7 +500,6 @@ class _EmotionRecorderScreenState extends State<EmotionRecorderScreen> {
 
               const Divider(height: 1),
 
-              // BOTTOM SECTION: Scrollable List of Results
               Expanded(
                 child: _dbRecords.isEmpty
                     ? Center(
@@ -526,14 +510,11 @@ class _EmotionRecorderScreenState extends State<EmotionRecorderScreen> {
                 )
                     : ListView.builder(
                   padding: const EdgeInsets.all(16),
-                  itemCount: _dbRecords.length + 1, // +1 for current result header if needed
+                  itemCount: _dbRecords.length + 1,
                   itemBuilder: (context, index) {
-                    // Optional: Show the very last result prominently at the top if needed.
-                    // Here we just list the DB records.
+
                     if (index == 0) {
-                      // If we have a fresh prediction that might not be in DB yet (e.g. before user selection),
-                      // we display it. But our logic adds to DB immediately after selection.
-                      // So let's just display the detailed result of the LATEST record if available.
+
                       if (_predictedEmotion != null) {
                         return Column(
                           children: [
@@ -700,7 +681,6 @@ class _EmotionRecorderScreenState extends State<EmotionRecorderScreen> {
   }
 }
 
-// --- Models & Helpers ---
 
 class EmotionRecord {
   final DateTime timestamp;
