@@ -6,7 +6,7 @@ This project aims to recognize human emotions (happy, sad, angry, neutral) from 
 
 * `EmotionRecognition_Final.ipynb`: Jupyter Notebook containing the data processing, model training, evaluation, and export steps.
 * `server.py`: Python Flask server script to load the trained Keras model and provide predictions via an API endpoint.
-* `unbiased_app_model.keras`: The final, trained Keras model file used by the server.
+* `best_cnn_gru_ser.keras`: The final, trained Keras model file used by the server.
 * `requirements.txt`: (We will create this next) List of Python dependencies.
 * `flutter_app/`: (Placeholder for later) Directory containing the Flutter mobile application code.
 
